@@ -1,5 +1,10 @@
 # RustSlackClient
 
+# Note (Mod not being maintained)
+After talking with the mods at oxidemod.org, I'm not going to maintain or use this library. There is already a better one [here](http://oxidemod.org/plugins/slack.1952/) that my `RustNotifications` plugin will rely on.
+
+# Overview
+
 A slack client library for Rust using the [OxideMod](oxidemod.com) framework. This plugin was designed without the configuration in mind. The reason there are no configuration parameters on this plugin is to allow multiple configurations per plugin.
 
 # Prerequisites

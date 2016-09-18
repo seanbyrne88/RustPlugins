@@ -1,6 +1,6 @@
 # RustNotifications
 
-This plugin uses the `RustSlackClient` library included in this repo. It provides a notification system to either a player or a slack team when a player connects or disconnects from a server and when a player attacks another player's base.
+This plugin uses the `Slack` library included in [here](http://oxidemod.org/plugins/slack.1952/). It provides a notification system to either a player or a slack team when a player connects or disconnects from a server and when a player attacks another player's base.
 
 
 # Overview
@@ -12,38 +12,28 @@ When a player who's sleeping in the server but offline has their base attacked a
 
 # Setup
 
-To use this plugin the file `RustSlackClient` must also be loaded from your server's plugin directory. Do this by dropping the `RustSlackClient.cs` file into the plugin directory, no further configuration is necessary for that part.
+To use this plugin the file `Slack.cs` must also be loaded from your server's plugin directory. Do this by dropping the `Slack.cs` file into the plugin directory, review that plugins notes for setup information.
 
 Next drop `RustNotifications.cs` into the servers plugin directory, if the server is running it should automatically recognize and build the plugin and create the default configuration file. If the server isn't running, the config file will be created the next time the server is started.
-
-You MUST then get your Incoming Webhooks url with access token, add it to the configuration file and reload the mod using the command `oxide.reload RustNotifications`. You can then start using the app as it's configured below.
 
 # Configuration
 The default configuration file will look like this:
 ```json
 {
-  "IsSlackActive": true,
-  "UrlWithAccessToken": "https://hooks.slack.com/services/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",
-  "SlackChannel": "#rust",
-  "SlackUserName": "Rust Notifications",
-  "EmojiIcon": ":rust:",
+  "DoLinkSteamProfile": true,
+  "DoSendSlackMessages": true,
   "DoNotifyWhenBaseAttacked": true,
-  "BaseAttackedMessageTemplate": "{Attacker} has attacked a structure built by {Owner}",
+  "BaseAttackedMessageTemplate": null,
   "DoNotifyWhenPlayerConnects": true,
-  "PlayerConnectedMessageTemplate": "{DisplayName} has joined the server",
+  "PlayerConnectedMessageTemplate": null,
   "DoNotifyWhenPlayerDisconnects": true,
-  "PlayerDisconnectedMessageTemplate": "{DisplayName} has left the server, reason: {Reason}",
+  "PlayerDisconnectedMessageTemplate": null,
   "NotificationCooldownInSeconds": 60
 }
 ```
+- DoLinkSteamProfile: Switch to turn off link to steam profile on notifications.
 
-- IsSlackActive: Switch to turn slack notifications on/off.
-
-- UrlWithAccessToken: This value can be taken from the Slack Team's app configuration page. https://yourteamname.slack.com/apps/manage/custom-integrations. You must have the Incoming Webhooks custom integration installed.
-
-- SlackChannel: Channel you want to post messages to on slack.
-
-- SlackUserName: Bot name you want the message to be posted under.
+- DoSendSlackMessages: Switch to turn slack notifications on/off.
 
 - DoNotifyWhenBaseAttacked: Switch to turn notifications for base attacks on/off.
 
@@ -59,8 +49,6 @@ The default configuration file will look like this:
 
 - NotificationCooldownInSeconds: Time to wait between base attacked notifications. This is on a per player basis. Meaning if two players have their bases attacked inside the cooldown period, they will both receive messages.
 
-# Tips
-To take the usernames out of the attacked notifications just edit the Message templates located in the configuration file.
 
 # TODO
 - Notify on structure destroyed.
