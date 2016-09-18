@@ -68,7 +68,7 @@ namespace Oxide.Plugins
             {
                 foreach (var l in UserLastNotified)
                 {
-                    PrintToChat(player, String.Format("Key: {0}, Val: {1}", l.Key, l.Value));
+                    PrintToChat(player, String.Format("Key: {0}, Val: {1}", GetDisplayNameByID(l.Key), l.Value));
                 }
             }
         }
