@@ -38,4 +38,4 @@ if(!RustSlackClient)
 NOTE: There is no way of ensuring load order of the plugins so you may want to rename the .cs file to ensure it gets loaded first. That way subsequent plugins will not throw the warning above because of the load order.
 
 # Extra Tips
-For my Client library I created a `rust` emoji in Slack and used this as the EmojiIcon icon parameter. This lets you easily identify slack messages from the bot. You can also default this on the Incoming Webhook configuration page on your team's app management page.
+For my Client library I created a `:rust:` emoji in Slack and used this as the EmojiIcon icon parameter. This lets you easily identify slack messages from the bot. You can also default this on the Incoming Webhook configuration page on your team's app management page.
