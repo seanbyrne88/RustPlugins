@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Net;
 using System.Text;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 
@@ -10,6 +10,8 @@ using Oxide.Core;
 using Oxide.Core.Plugins;
 using Oxide.Game.Rust;
 using Oxide.Game.Rust.Cui;
+using Oxide.Core.Libraries.Covalence;
+//using Oxide.Game.Rust.Libraries.Covalence;
 
 namespace Oxide.Plugins
 {
@@ -17,26 +19,20 @@ namespace Oxide.Plugins
     [Description("Configurable Notifications for Rust Events")]
     class RustNotifications : RustPlugin
     {
-        private static PluginConfig Settings;
-        
+
         [PluginReference]
-        Plugin RustSlackClient;
+        Plugin Slack;
 
+        private static PluginConfig Settings;
         private Dictionary<ulong, DateTime> UserLastNotified;
-
-        #region chat commands
-        [ChatCommand("resetConfig")]
-        void CommandResetConfig(BasePlayer player, string command, string[] args)
-        {
-            if (player.IsAdmin())
-            {
-                LoadDefaultConfig();
-                LoadConfigValues();
-            }
-        }
-        #endregion
+        private string SlackNotificationType;
 
         #region oxide methods
+        void Init()
+        {
+            LoadConfigValues();
+        }
+
         void OnPlayerInit(BasePlayer player)
         {
             SendPlayerConnectNotification(player);
@@ -51,26 +47,38 @@ namespace Oxide.Plugins
         {
             SendBaseAttackedNotification(attacker, info);
         }
+        #endregion
 
-        void Init()
+        #region chat commands
+        [ChatCommand("rustNotifyResetConfig")]
+        void CommandResetConfig(BasePlayer player, string command, string[] args)
         {
-            LoadConfigValues();
+            if (player.IsAdmin())
+            {
+                LoadDefaultConfig();
+                LoadDefaultMessages();
+                LoadConfigValues();
+            }
+        }
+
+        [ChatCommand("rustNotifyGetCooldowns")]
+        void CommandGetCoolDowns(BasePlayer player, string command, string[] args)
+        {
+            if (player.IsAdmin())
+            {
+                foreach (var l in UserLastNotified)
+                {
+                    PrintToChat(player, String.Format("Key: {0}, Val: {1}", l.Key, l.Value));
+                }
+            }
         }
         #endregion
 
-        private void AlertServer(string MessageText)
-        {
-            PrintToChat(MessageText);
-        }
-
-        private void AlertIndividual(BasePlayer player, string MessageText)
-        {
-            PrintToChat(player, MessageText);
-        }
+        #region private methods
 
         private string GetDisplayNameByID(ulong UserID)
-        {            
-            if(BasePlayer.activePlayerList.Exists(x => UserID == x.userID))
+        {
+            if (BasePlayer.activePlayerList.Exists(x => UserID == x.userID))
             {
                 return BasePlayer.activePlayerList.Find(x => UserID == x.userID).displayName;
             }
@@ -80,12 +88,12 @@ namespace Oxide.Plugins
                 {
                     return BasePlayer.sleepingPlayerList.Find(x => UserID == x.userID).displayName;
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     PrintWarning(String.Format("Tried to find player with ID {0} but they weren't in active or sleeping player list", UserID.ToString()));
                     throw;
                 }
-                
+
             }
         }
 
@@ -123,38 +131,40 @@ namespace Oxide.Plugins
                 return true;
             }
         }
+        #endregion
 
         #region notifications
-        private void SendSlackNotification(string MessageText)
+        private void SendSlackNotification(BasePlayer player, string MessageText)
         {
-            if(Settings.IsSlackActive)
-            {
-                RustSlackClient.Call(
-                    "PostMessage",
-                    Settings.UrlWithAccessToken,
-                    MessageText,
-                    Settings.SlackUserName,
-                    Settings.SlackChannel,
-                    Settings.EmojiIcon
-                    );
-            }
+            Slack.Call(SlackNotificationType, MessageText, BasePlayerToIPlayer(player));
+        }
+
+        private void SendSlackNotification(IPlayer player, string MessageText)
+        {
+            Slack.Call(SlackNotificationType, MessageText, player);
+        }
+
+        private IPlayer BasePlayerToIPlayer(BasePlayer player)
+        {
+            return covalence.Players.GetPlayer(player.UserIDString);
         }
 
         private void SendPlayerConnectNotification(BasePlayer player)
         {
-            string MessageText = Settings.PlayerConnectedMessageTemplate.Replace("{DisplayName}", player.displayName);
-            if(Settings.DoNotifyWhenPlayerConnects)
+            if (Settings.DoNotifyWhenPlayerConnects)
             {
-                SendSlackNotification(MessageText);
+                //string MessageText = Lang("PlayerConnectedMessageTemplate", player.UserIDString).Replace("{DisplayName}", player.displayName);
+                string MessageText = lang.GetMessage("PlayerConnectedMessageTemplate", this, player.UserIDString).Replace("{DisplayName}", player.displayName);
+                SendSlackNotification(player, MessageText);
             }
         }
 
         private void SendPlayerDisconnectNotification(BasePlayer player, string reason)
         {
-            string MessageText = Settings.PlayerDisconnectedMessageTemplate.Replace("{DisplayName}", player.displayName).Replace("{Reason}", reason);
-            if(Settings.DoNotifyWhenPlayerDisconnects)
+            if (Settings.DoNotifyWhenPlayerDisconnects)
             {
-                SendSlackNotification(MessageText);
+                string MessageText = lang.GetMessage("PlayerDisconnectedMessageTemplate", this, player.UserIDString).Replace("{DisplayName}", player.displayName).Replace("{Reason}", reason);
+                SendSlackNotification(player, MessageText);
             }
         }
 
@@ -164,11 +174,12 @@ namespace Oxide.Plugins
             {
                 if (info.HitEntity.OwnerID != 0 && IsPlayerNotificationCooledDown(info.HitEntity.OwnerID))// && info.HitEntity.OwnerID != player.userID)
                 {
-                    string MessageText = Settings.BaseAttackedMessageTemplate.Replace("{Attacker}", player.displayName).Replace("{Owner}", GetDisplayNameByID(info.HitEntity.OwnerID).Replace("{Damage}", info.damageTypes.Total().ToString()));
+                    //string MessageText = Lang("BaseAttackedMessageTemplate", player.UserIDString).Replace("{Attacker}", player.displayName).Replace("{Owner}", GetDisplayNameByID(info.HitEntity.OwnerID).Replace("{Damage}", info.damageTypes.Total().ToString()));
+                    string MessageText = lang.GetMessage("BaseAttackedMessageTemplate", this, player.UserIDString).Replace("{Attacker}", player.displayName).Replace("{Owner}", GetDisplayNameByID(info.HitEntity.OwnerID).Replace("{Damage}", info.damageTypes.Total().ToString()));
                     if (Settings.DoNotifyWhenBaseAttacked)
                     {
                         //if a player is active on the server, no need to send to slack, just notify in chat.
-                        if(IsPlayerActive(info.HitEntity.OwnerID))
+                        if (IsPlayerActive(info.HitEntity.OwnerID))
                         {
                             //find player and message directly
                             BasePlayer p = BasePlayer.activePlayerList.Find(x => x.userID == info.HitEntity.OwnerID);
@@ -176,7 +187,7 @@ namespace Oxide.Plugins
                         }
                         else
                         {
-                            SendSlackNotification(MessageText);
+                            SendSlackNotification(player, MessageText);
                         }
                     }
                 }
@@ -184,48 +195,61 @@ namespace Oxide.Plugins
         }
         #endregion notifications
 
-        #region Config
+        #region localization
+        private void LoadDefaultMessages()
+        {
+            lang.RegisterMessages(new Dictionary<string, string>
+                {
+                    {"PlayerConnectedMessageTemplate", "{DisplayName} has joined the server"},
+                    {"PlayerDisconnectedMessageTemplate", "{DisplayName} has left the server, reason: {Reason}"},
+                    {"BaseAttackedMessageTemplate", "{Attacker} has attacked a structure built by {Owner}"},
+                    {"TestMessage", "Hello World"}
+                }, this);
+        }
+        #endregion
 
+        #region Config
         PluginConfig DefaultConfig()
         {
             return new PluginConfig
             {
-                IsSlackActive = true,
-                UrlWithAccessToken = "",
-                SlackChannel = "#rust",
-                EmojiIcon = ":rust:",
-                SlackUserName = "Rust Notifications",
+                DoLinkSteamProfile = true,
+                DoSendSlackMessages = true,
                 DoNotifyWhenPlayerConnects = true,
-                PlayerConnectedMessageTemplate = "{DisplayName} has joined the server",
                 DoNotifyWhenPlayerDisconnects = true,
-                PlayerDisconnectedMessageTemplate = "{DisplayName} has left the server, reason: {Reason}",
                 DoNotifyWhenBaseAttacked = true,
-                BaseAttackedMessageTemplate = "{Attacker} has attacked a structure built by {Owner}",
                 NotificationCooldownInSeconds = 60
-            }; 
+            };
         }
 
         protected override void LoadDefaultConfig()
         {
             Config.Clear();
             Config.WriteObject(DefaultConfig(), true);
+
             PrintWarning("Default Configuration File Created");
+
             UserLastNotified = new Dictionary<ulong, DateTime>();
         }
+
+
 
         protected void LoadConfigValues()
         {
             Settings = Config.ReadObject<PluginConfig>();
+
             UserLastNotified = new Dictionary<ulong, DateTime>();
+
+            if (Settings.DoLinkSteamProfile)
+                SlackNotificationType = "FancyMessage";
+            else
+                SlackNotificationType = "SimpleMessage";
         }
 
         private class PluginConfig
         {
-            public bool IsSlackActive { get; set; }
-            public string UrlWithAccessToken { get; set; }
-            public string SlackChannel { get; set; }
-            public string SlackUserName { get; set; }
-            public string EmojiIcon { get; set; }
+            public bool DoLinkSteamProfile { get; set; }
+            public bool DoSendSlackMessages { get; set; }
             public bool DoNotifyWhenBaseAttacked { get; set; }
             public string BaseAttackedMessageTemplate { get; set; }
             public bool DoNotifyWhenPlayerConnects { get; set; }
