@@ -1,6 +1,6 @@
 # RustPlugins
 
-Plugins I've made for the PC game Rust. This was meant as a learning experience and if anything can be improved upon just send over an issue and I'll try to get working on it.
+Plugins I've made for the PC game Rust. This was meant as a learning experience and if anything can be improved upon, create an issue and I'll try to get working on it.
 
 # Overview
 
