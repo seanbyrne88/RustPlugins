@@ -10,8 +10,8 @@ using Oxide.Core.Libraries.Covalence;
 
 namespace Oxide.Plugins
 {
-    [Info("RustSlackClient", "seanbyrne88", "0.1.0")]
-    [Description("Slack Client for Rust OxideMods")]
+    [Info("Discord", "seanbyrne88", "0.2.0")]
+    [Description("Discord Client for Rust OxideMods")]
     class Discord : CovalencePlugin
     {
         private static PluginConfig Settings;
@@ -36,8 +36,6 @@ namespace Oxide.Plugins
             headers.Add("Content-Type", "application/json");
 
             string url = BaseURLTemplate.Replace("{{ChannelID}}", Settings.ChannelID.ToString());
-            Puts("Url: " + url);
-            Puts("Payload: " + payloadJson);
             webrequest.EnqueuePost(url, payloadJson, (code, response) => PostCallBack(code, response), this, headers);
             //webrequest.EnqueuePost(UrlWithAccessToken, payloadJson, (code, response) => PostCallBack(code, response), this);
         }
@@ -85,7 +83,6 @@ namespace Oxide.Plugins
             public ulong ChannelID { get; set; }
         }
 
-        //This class serializes into the Json payload required by Slack Incoming WebHooks
         class DiscordPayload
         {
             [JsonProperty("content")]
