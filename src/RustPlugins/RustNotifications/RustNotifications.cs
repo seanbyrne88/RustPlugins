@@ -23,7 +23,7 @@ namespace Oxide.Plugins
         [PluginReference]
         Plugin Slack;
 
-        private static PluginConfig Settings;
+        private static NotificationConfigContainer Settings;
         private Dictionary<ulong, DateTime> UserLastNotified;
         private string SlackNotificationType;
 
@@ -115,7 +115,7 @@ namespace Oxide.Plugins
             {
                 //check notification time per user, if it's cooled down send a message
                 DateTime LastNotificationTime = UserLastNotified[UserID];
-                if ((DateTime.Now - LastNotificationTime).TotalSeconds > Settings.NotificationCooldownInSeconds)
+                if ((DateTime.Now - LastNotificationTime).TotalSeconds > Settings.SlackConfig.NotificationCooldownInSeconds)
                 {
                     UserLastNotified[UserID] = DateTime.Now;
                     return true;
@@ -151,7 +151,7 @@ namespace Oxide.Plugins
 
         private void SendPlayerConnectNotification(BasePlayer player)
         {
-            if (Settings.DoNotifyWhenPlayerConnects)
+            if (Settings.SlackConfig.DoNotifyWhenPlayerConnects)
             {
                 //string MessageText = Lang("PlayerConnectedMessageTemplate", player.UserIDString).Replace("{DisplayName}", player.displayName);
                 string MessageText = lang.GetMessage("PlayerConnectedMessageTemplate", this, player.UserIDString).Replace("{DisplayName}", player.displayName);
@@ -161,7 +161,7 @@ namespace Oxide.Plugins
 
         private void SendPlayerDisconnectNotification(BasePlayer player, string reason)
         {
-            if (Settings.DoNotifyWhenPlayerDisconnects)
+            if (Settings.SlackConfig.DoNotifyWhenPlayerDisconnects)
             {
                 string MessageText = lang.GetMessage("PlayerDisconnectedMessageTemplate", this, player.UserIDString).Replace("{DisplayName}", player.displayName).Replace("{Reason}", reason);
                 SendSlackNotification(player, MessageText);
@@ -176,7 +176,7 @@ namespace Oxide.Plugins
                 {
                     //string MessageText = Lang("BaseAttackedMessageTemplate", player.UserIDString).Replace("{Attacker}", player.displayName).Replace("{Owner}", GetDisplayNameByID(info.HitEntity.OwnerID).Replace("{Damage}", info.damageTypes.Total().ToString()));
                     string MessageText = lang.GetMessage("BaseAttackedMessageTemplate", this, player.UserIDString).Replace("{Attacker}", player.displayName).Replace("{Owner}", GetDisplayNameByID(info.HitEntity.OwnerID).Replace("{Damage}", info.damageTypes.Total().ToString()));
-                    if (Settings.DoNotifyWhenBaseAttacked)
+                    if (Settings.SlackConfig.DoNotifyWhenBaseAttacked)
                     {
                         //if a player is active on the server, no need to send to slack, just notify in chat.
                         if (IsPlayerActive(info.HitEntity.OwnerID))
@@ -209,12 +209,20 @@ namespace Oxide.Plugins
         #endregion
 
         #region Config
-        PluginConfig DefaultConfig()
+        NotificationConfigContainer DefaultConfigContainer()
         {
-            return new PluginConfig
+            return new NotificationConfigContainer
+            {
+                SlackConfig = DefaultNotificationConfig()
+            };
+        }
+
+        NotificationConfig DefaultNotificationConfig()
+        {
+            return new NotificationConfig
             {
                 DoLinkSteamProfile = true,
-                DoSendSlackMessages = true,
+                Active = true,
                 DoNotifyWhenPlayerConnects = true,
                 DoNotifyWhenPlayerDisconnects = true,
                 DoNotifyWhenBaseAttacked = true,
@@ -225,7 +233,7 @@ namespace Oxide.Plugins
         protected override void LoadDefaultConfig()
         {
             Config.Clear();
-            Config.WriteObject(DefaultConfig(), true);
+            Config.WriteObject(DefaultConfigContainer(), true);
 
             PrintWarning("Default Configuration File Created");
 
@@ -236,28 +244,31 @@ namespace Oxide.Plugins
 
         protected void LoadConfigValues()
         {
-            Settings = Config.ReadObject<PluginConfig>();
+            Settings = Config.ReadObject<NotificationConfigContainer>();
 
             UserLastNotified = new Dictionary<ulong, DateTime>();
 
-            if (Settings.DoLinkSteamProfile)
+            if (Settings.SlackConfig.DoLinkSteamProfile)
                 SlackNotificationType = "FancyMessage";
             else
                 SlackNotificationType = "SimpleMessage";
         }
 
-        private class PluginConfig
+        private class NotificationConfig
         {
             public bool DoLinkSteamProfile { get; set; }
-            public bool DoSendSlackMessages { get; set; }
+            public bool Active { get; set; }
             public bool DoNotifyWhenBaseAttacked { get; set; }
-            public string BaseAttackedMessageTemplate { get; set; }
             public bool DoNotifyWhenPlayerConnects { get; set; }
-            public string PlayerConnectedMessageTemplate { get; set; }
             public bool DoNotifyWhenPlayerDisconnects { get; set; }
-            public string PlayerDisconnectedMessageTemplate { get; set; }
             public int NotificationCooldownInSeconds { get; set; }
         }
+
+        private class NotificationConfigContainer
+        {
+            public NotificationConfig SlackConfig { get; set; }
+        }
+
         #endregion
     }
 }
