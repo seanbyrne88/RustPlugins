@@ -15,6 +15,7 @@ namespace Oxide.Plugins
     class Discord : CovalencePlugin
     {
         private static PluginConfig Settings;
+        private static string BaseURLTemplate = "https://discordapp.com/api/channels/{{ChannelID}}/messages";
 
         void SendMessage(string MessageText)
         {
@@ -34,7 +35,7 @@ namespace Oxide.Plugins
             }
             headers.Add("Content-Type", "application/json");
 
-            string url = Settings.BaseURLTemplate.Replace("{{ChannelID}}", Settings.ChannelID.ToString());
+            string url = BaseURLTemplate.Replace("{{ChannelID}}", Settings.ChannelID.ToString());
             Puts("Url: " + url);
             Puts("Payload: " + payloadJson);
             webrequest.EnqueuePost(url, payloadJson, (code, response) => PostCallBack(code, response), this, headers);
@@ -73,7 +74,6 @@ namespace Oxide.Plugins
         {
             return new PluginConfig
             {
-                BaseURLTemplate = "https://discordapp.com/api/channels/{{ChannelID}}/messages",
                 BotToken = String.Empty,
                 ChannelID = 0
             };
@@ -81,7 +81,6 @@ namespace Oxide.Plugins
 
         private class PluginConfig
         {
-            public string BaseURLTemplate { get; set; }
             public string BotToken { get; set; }
             public ulong ChannelID { get; set; }
         }
