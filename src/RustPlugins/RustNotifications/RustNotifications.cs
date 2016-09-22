@@ -15,7 +15,7 @@ using Oxide.Core.Libraries.Covalence;
 
 namespace Oxide.Plugins
 {
-    [Info("RustNotifications", "seanbyrne88", "0.5.0")]
+    [Info("RustNotifications", "seanbyrne88", "0.6.0")]
     [Description("Configurable Notifications for Rust Events")]
     class RustNotifications : RustPlugin
     {
@@ -23,9 +23,15 @@ namespace Oxide.Plugins
         [PluginReference]
         Plugin Slack;
 
+        [PluginReference]
+        Plugin Discord;
+
         private static NotificationConfigContainer Settings;
-        private Dictionary<ulong, DateTime> UserLastNotified;
-        private string SlackNotificationType;
+
+        private List<NotificationCooldown> UserLastNotified;
+
+        private string SlackMethodName;
+        private string DiscordMethodName;
 
         #region oxide methods
         void Init()
@@ -61,17 +67,6 @@ namespace Oxide.Plugins
             }
         }
 
-        [ChatCommand("rustNotifyGetCooldowns")]
-        void CommandGetCoolDowns(BasePlayer player, string command, string[] args)
-        {
-            if (player.IsAdmin())
-            {
-                foreach (var l in UserLastNotified)
-                {
-                    PrintToChat(player, String.Format("Key: {0}, Val: {1}", GetDisplayNameByID(l.Key), l.Value));
-                }
-            }
-        }
         #endregion
 
         #region private methods
@@ -109,15 +104,16 @@ namespace Oxide.Plugins
             }
         }
 
-        private bool IsPlayerNotificationCooledDown(ulong UserID)
+        private bool IsPlayerNotificationCooledDown(ulong UserID, NotificationType NotificationType, int CooldownInSeconds)
         {
-            if (UserLastNotified.ContainsKey(UserID))
+            if (UserLastNotified.Exists(x => x.NotificationType == NotificationType && x.PlayerID == UserID))
             {
-                //check notification time per user, if it's cooled down send a message
-                DateTime LastNotificationTime = UserLastNotified[UserID];
-                if ((DateTime.Now - LastNotificationTime).TotalSeconds > Settings.SlackConfig.NotificationCooldownInSeconds)
+                //check notification time per user, per notificationType, if it's cooled down send a message
+                DateTime LastNotificationTime = UserLastNotified.Find(x => x.NotificationType == NotificationType && x.PlayerID == UserID).LastNotifiedAt;
+                if ((DateTime.Now - LastNotificationTime).TotalSeconds > CooldownInSeconds)
                 {
-                    UserLastNotified[UserID] = DateTime.Now;
+                    //SlackUserLastNotified[UserID] = DateTime.Now;
+                    UserLastNotified.Find(x => x.NotificationType == NotificationType && x.PlayerID == UserID).LastNotifiedAt = DateTime.Now;
                     return true;
                 }
                 else
@@ -127,7 +123,7 @@ namespace Oxide.Plugins
             }
             else
             {
-                UserLastNotified.Add(UserID, DateTime.Now);
+                UserLastNotified.Add(new NotificationCooldown() { PlayerID = UserID, NotificationType = NotificationType, LastNotifiedAt = DateTime.Now });
                 return true;
             }
         }
@@ -136,12 +132,18 @@ namespace Oxide.Plugins
         #region notifications
         private void SendSlackNotification(BasePlayer player, string MessageText)
         {
-            Slack.Call(SlackNotificationType, MessageText, BasePlayerToIPlayer(player));
+            if (Settings.SlackConfig.Active)
+            {
+                Slack.Call(SlackMethodName, MessageText, BasePlayerToIPlayer(player));
+            }
         }
 
-        private void SendSlackNotification(IPlayer player, string MessageText)
+        private void SendDiscordNotification(BasePlayer player, string MessageText)
         {
-            Slack.Call(SlackNotificationType, MessageText, player);
+            if (Settings.DiscordConfig.Active)
+            {
+                Discord.Call(DiscordMethodName, MessageText);
+            }
         }
 
         private IPlayer BasePlayerToIPlayer(BasePlayer player)
@@ -157,6 +159,12 @@ namespace Oxide.Plugins
                 string MessageText = lang.GetMessage("PlayerConnectedMessageTemplate", this, player.UserIDString).Replace("{DisplayName}", player.displayName);
                 SendSlackNotification(player, MessageText);
             }
+
+            if (Settings.DiscordConfig.DoNotifyWhenPlayerConnects)
+            {
+                string MessageText = lang.GetMessage("PlayerConnectedMessageTemplate", this, player.UserIDString).Replace("{DisplayName}", player.displayName);
+                SendDiscordNotification(player, MessageText);
+            }
         }
 
         private void SendPlayerDisconnectNotification(BasePlayer player, string reason)
@@ -166,28 +174,39 @@ namespace Oxide.Plugins
                 string MessageText = lang.GetMessage("PlayerDisconnectedMessageTemplate", this, player.UserIDString).Replace("{DisplayName}", player.displayName).Replace("{Reason}", reason);
                 SendSlackNotification(player, MessageText);
             }
+
+            if (Settings.DiscordConfig.DoNotifyWhenPlayerDisconnects)
+            {
+                string MessageText = lang.GetMessage("PlayerDisconnectedMessageTemplate", this, player.UserIDString).Replace("{DisplayName}", player.displayName).Replace("{Reason}", reason);
+                SendDiscordNotification(player, MessageText);
+            }
         }
 
         private void SendBaseAttackedNotification(BasePlayer player, HitInfo info)
         {
             if (info.HitEntity != null)
             {
-                if (info.HitEntity.OwnerID != 0 && IsPlayerNotificationCooledDown(info.HitEntity.OwnerID))// && info.HitEntity.OwnerID != player.userID)
+                //First check if the HitEntity is owned by a player.
+                if (info.HitEntity.OwnerID != 0)
                 {
-                    //string MessageText = Lang("BaseAttackedMessageTemplate", player.UserIDString).Replace("{Attacker}", player.displayName).Replace("{Owner}", GetDisplayNameByID(info.HitEntity.OwnerID).Replace("{Damage}", info.damageTypes.Total().ToString()));
                     string MessageText = lang.GetMessage("BaseAttackedMessageTemplate", this, player.UserIDString).Replace("{Attacker}", player.displayName).Replace("{Owner}", GetDisplayNameByID(info.HitEntity.OwnerID).Replace("{Damage}", info.damageTypes.Total().ToString()));
-                    if (Settings.SlackConfig.DoNotifyWhenBaseAttacked)
+                    
+                    if (IsPlayerActive(info.HitEntity.OwnerID) && IsPlayerNotificationCooledDown(info.HitEntity.OwnerID, NotificationType.ServerNotification, Settings.ServerConfig.NotificationCooldownInSeconds))
                     {
-                        //if a player is active on the server, no need to send to slack, just notify in chat.
-                        if (IsPlayerActive(info.HitEntity.OwnerID))
-                        {
-                            //find player and message directly
-                            BasePlayer p = BasePlayer.activePlayerList.Find(x => x.userID == info.HitEntity.OwnerID);
-                            PrintToChat(p, MessageText);
-                        }
-                        else
+                        BasePlayer p = BasePlayer.activePlayerList.Find(x => x.userID == info.HitEntity.OwnerID);
+                        PrintToChat(p, MessageText);
+                    }
+                    else
+                    {
+                        //Slack
+                        if (Settings.SlackConfig.DoNotifyWhenBaseAttacked && IsPlayerNotificationCooledDown(info.HitEntity.OwnerID, NotificationType.SlackNotification, Settings.SlackConfig.NotificationCooldownInSeconds))
                         {
                             SendSlackNotification(player, MessageText);
+                        }
+                        //Discord
+                        if (Settings.DiscordConfig.DoNotifyWhenBaseAttacked && IsPlayerNotificationCooledDown(info.HitEntity.OwnerID, NotificationType.DiscordNotification, Settings.DiscordConfig.NotificationCooldownInSeconds))
+                        {
+                            SendDiscordNotification(player, MessageText);
                         }
                     }
                 }
@@ -208,21 +227,33 @@ namespace Oxide.Plugins
         }
         #endregion
 
-        #region Config
+        #region config
         NotificationConfigContainer DefaultConfigContainer()
         {
             return new NotificationConfigContainer
             {
-                SlackConfig = DefaultNotificationConfig()
+                ServerConfig = DefaultServerNotificationConfig(),
+                SlackConfig = DefaultClientNotificationConfig(),
+                DiscordConfig = DefaultClientNotificationConfig()
             };
         }
 
-        NotificationConfig DefaultNotificationConfig()
+        ServerNotificationConfig DefaultServerNotificationConfig()
         {
-            return new NotificationConfig
+            return new ServerNotificationConfig
+            {
+                Active = true,
+                DoNotifyWhenBaseAttacked = true,
+                NotificationCooldownInSeconds = 60
+            };
+        }
+
+        ClientNotificationConfig DefaultClientNotificationConfig()
+        {
+            return new ClientNotificationConfig
             {
                 DoLinkSteamProfile = true,
-                Active = true,
+                Active = false,
                 DoNotifyWhenPlayerConnects = true,
                 DoNotifyWhenPlayerDisconnects = true,
                 DoNotifyWhenBaseAttacked = true,
@@ -237,36 +268,59 @@ namespace Oxide.Plugins
 
             PrintWarning("Default Configuration File Created");
 
-            UserLastNotified = new Dictionary<ulong, DateTime>();
+            UserLastNotified = new List<NotificationCooldown>();
         }
-
-
 
         protected void LoadConfigValues()
         {
             Settings = Config.ReadObject<NotificationConfigContainer>();
 
-            UserLastNotified = new Dictionary<ulong, DateTime>();
+            UserLastNotified = new List<NotificationCooldown>();
 
             if (Settings.SlackConfig.DoLinkSteamProfile)
-                SlackNotificationType = "FancyMessage";
+                SlackMethodName = "FancyMessage";
             else
-                SlackNotificationType = "SimpleMessage";
-        }
+                SlackMethodName = "SimpleMessage";
 
-        private class NotificationConfig
+            DiscordMethodName = "SendMessage";
+        }
+        #endregion
+
+
+        #region classes
+        private class ServerNotificationConfig
         {
-            public bool DoLinkSteamProfile { get; set; }
             public bool Active { get; set; }
             public bool DoNotifyWhenBaseAttacked { get; set; }
-            public bool DoNotifyWhenPlayerConnects { get; set; }
-            public bool DoNotifyWhenPlayerDisconnects { get; set; }
             public int NotificationCooldownInSeconds { get; set; }
         }
 
+        private class ClientNotificationConfig : ServerNotificationConfig
+        {
+            public bool DoLinkSteamProfile { get; set; }
+            public bool DoNotifyWhenPlayerConnects { get; set; }
+            public bool DoNotifyWhenPlayerDisconnects { get; set; }
+        }
+        
         private class NotificationConfigContainer
         {
-            public NotificationConfig SlackConfig { get; set; }
+            public ServerNotificationConfig ServerConfig { get; set; }
+            public ClientNotificationConfig SlackConfig { get; set; }
+            public ClientNotificationConfig DiscordConfig { get; set; }
+        }
+
+        private enum NotificationType
+        {
+            SlackNotification,
+            DiscordNotification,
+            ServerNotification
+        }
+
+        private class NotificationCooldown
+        {
+            public NotificationType NotificationType { get; set; }
+            public ulong PlayerID { get; set; }
+            public DateTime LastNotifiedAt { get; set; }
         }
 
         #endregion

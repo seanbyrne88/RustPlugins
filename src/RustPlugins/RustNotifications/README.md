@@ -1,6 +1,7 @@
 # RustNotifications
 
-This plugin uses the `Slack` library included in [here](http://oxidemod.org/plugins/slack.1952/). It provides a notification system to either a player or a slack team when a player connects or disconnects from a server and when a player attacks another player's base.
+This plugin uses the `Slack` library included [here](http://oxidemod.org/plugins/slack.1952/) and the `Discord` library included [here](). 
+It provides a notification system to either a player or a slack team when a player connects or disconnects from a server and when a player attacks another player's base.
 
 
 # Overview
@@ -13,6 +14,8 @@ When a player who's sleeping in the server but offline has their base attacked a
 # Setup
 
 To use this plugin the file `Slack.cs` must also be loaded from your server's plugin directory. Do this by dropping the `Slack.cs` file into the plugin directory, review that plugins notes for setup information.
+Repeat the steps with `Discord.cs`. These two steps are optional if you only want server notifications, but if you want to make
+use of Slack or Discord functionality then these two plugins will need to be loaded.
 
 Next drop `RustNotifications.cs` into the servers plugin directory, if the server is running it should automatically recognize and build the plugin and create the default configuration file. If the server isn't running, the config file will be created the next time the server is started.
 
@@ -20,23 +23,33 @@ Next drop `RustNotifications.cs` into the servers plugin directory, if the serve
 The default configuration file will look like this:
 ```json
 {
-  "SlackConfig": {
-    "Active": true,
-    "BaseAttackedMessageTemplate": null,
+  "DiscordConfig": {
+    "Active": false,
     "DoLinkSteamProfile": true,
     "DoNotifyWhenBaseAttacked": true,
     "DoNotifyWhenPlayerConnects": true,
     "DoNotifyWhenPlayerDisconnects": true,
-    "NotificationCooldownInSeconds": 60,
-    "PlayerConnectedMessageTemplate": null,
-    "PlayerDisconnectedMessageTemplate": null
+    "NotificationCooldownInSeconds": 60
+  },
+  "ServerConfig": {
+    "Active": true,
+    "DoNotifyWhenBaseAttacked": true,
+    "NotificationCooldownInSeconds": 60
+  },
+  "SlackConfig": {
+    "Active": false,
+    "DoLinkSteamProfile": true,
+    "DoNotifyWhenBaseAttacked": true,
+    "DoNotifyWhenPlayerConnects": true,
+    "DoNotifyWhenPlayerDisconnects": true,
+    "NotificationCooldownInSeconds": 60
   }
 }
 ```
 
 - Active: Switch to turn slack notifications on/off.
 
-- DoLinkSteamProfile: Switch to turn off link to steam profile on notifications.
+- DoLinkSteamProfile: Switch to turn off link to steam profile on notifications (NOTE, this only works for Slack notifications right now).
 
 - DoNotifyWhenBaseAttacked: Switch to turn notifications for base attacks on/off.
 
@@ -52,6 +65,8 @@ The default configuration file will look like this:
 
 - NotificationCooldownInSeconds: Time to wait between base attacked notifications. This is on a per player basis. Meaning if two players have their bases attacked inside the cooldown period, they will both receive messages.
 
+ServerConfig is more limited right now as there already plugins out there to notify the server when a player connects/disconnects.
+
 # Language Files
 To configure the messages displayed there is a folder called lang in which the default `RustNotifications.en.json` langauge file will be created. The notifications configured in this fill are:
 
@@ -63,7 +78,6 @@ To configure the messages displayed there is a folder called lang in which the d
 
 
 # TODO
-- Discord support
 - Notify on structure destroyed.
 - Notify on sleeping player attacked/looted.
 - Ideally there would be some sort of in-game item, such as an alarm system where you'd attach this to structures and this would cause the notifications to go out instead of having it turned on for everything.
