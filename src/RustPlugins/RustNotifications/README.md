@@ -1,6 +1,6 @@
 # RustNotifications
 
-This plugin uses the `Slack` library included [here](http://oxidemod.org/plugins/slack.1952/) and the `Discord` library included [here](). 
+This plugin uses the `Slack` library included [here](http://oxidemod.org/plugins/slack.1952/) and the `Discord` library included [here](http://oxidemod.org/plugins/discord.2149/). 
 It provides a notification system to either a player or a slack team when a player connects or disconnects from a server and when a player attacks another player's base.
 
 
