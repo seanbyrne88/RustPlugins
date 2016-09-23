@@ -15,7 +15,7 @@ using Oxide.Core.Libraries.Covalence;
 
 namespace Oxide.Plugins
 {
-    [Info("RustNotifications", "seanbyrne88", "0.6.0")]
+    [Info("RustNotifications", "seanbyrne88", "0.7.0")]
     [Description("Configurable Notifications for Rust Events")]
     class RustNotifications : RustPlugin
     {
@@ -267,6 +267,8 @@ namespace Oxide.Plugins
             Config.WriteObject(DefaultConfigContainer(), true);
 
             PrintWarning("Default Configuration File Created");
+            LoadDefaultMessages();
+            PrintWarning("Default Language File Created");
 
             UserLastNotified = new List<NotificationCooldown>();
         }
