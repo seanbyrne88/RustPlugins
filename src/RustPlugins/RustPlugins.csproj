@@ -39,40 +39,39 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>C:\rustserver\RustDedicated_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="Facepunch.Console">
-      <HintPath>C:\rustserver\RustDedicated_Data\Managed\Facepunch.Console.dll</HintPath>
+    <Reference Include="Facepunch.Console, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>E:\Dev\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Facepunch.Console.dll</HintPath>
     </Reference>
-    <Reference Include="Facepunch.Rcon">
-      <HintPath>C:\rustserver\RustDedicated_Data\Managed\Facepunch.Rcon.dll</HintPath>
+    <Reference Include="Facepunch.Network, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>E:\Dev\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Facepunch.Network.dll</HintPath>
     </Reference>
-    <Reference Include="Facepunch.System">
-      <HintPath>C:\rustserver\RustDedicated_Data\Managed\Facepunch.System.dll</HintPath>
+    <Reference Include="Facepunch.Steamworks">
+      <HintPath>E:\Dev\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Facepunch.Steamworks.dll</HintPath>
+    </Reference>
+    <Reference Include="Facepunch.System, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>E:\Dev\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Facepunch.System.dll</HintPath>
+    </Reference>
+    <Reference Include="Facepunch.UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>E:\Dev\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Facepunch.UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Oxide.Core">
-      <HintPath>C:\rustserver\RustDedicated_Data\Managed\Oxide.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Oxide.Ext.CSharp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Oxide.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\rustserver\RustDedicated_Data\Managed\Oxide.Ext.CSharp.dll</HintPath>
+      <HintPath>E:\Dev\Oxide\Extensions\Oxide.Core.CSharp\bin\Debug\Oxide.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Oxide.Game.Rust">
-      <HintPath>C:\rustserver\RustDedicated_Data\Managed\Oxide.Game.Rust.dll</HintPath>
+    <Reference Include="Oxide.Core.CSharp">
+      <HintPath>E:\Dev\Oxide\Extensions\Oxide.Core.CSharp\bin\Debug\Oxide.Core.CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="Rust.Data">
-      <HintPath>C:\rustserver\RustDedicated_Data\Managed\Rust.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="Rust.UI">
-      <HintPath>C:\rustserver\RustDedicated_Data\Managed\Rust.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="Rust.Xp">
-      <HintPath>C:\rustserver\RustDedicated_Data\Managed\Rust.Xp.dll</HintPath>
-    </Reference>
-    <Reference Include="RustBuild">
-      <HintPath>C:\rustserver\RustDedicated_Data\Managed\RustBuild.dll</HintPath>
+    <Reference Include="Oxide.Game.Rust, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>E:\Dev\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Oxide.Game.Rust.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

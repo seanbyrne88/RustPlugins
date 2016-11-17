@@ -1,17 +1,7 @@
 ﻿using System;
-using System.Text;
-using System.ComponentModel;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-
-using UnityEngine;
-using Newtonsoft.Json;
-using Oxide.Core;
 using Oxide.Core.Plugins;
-using Oxide.Game.Rust;
-using Oxide.Game.Rust.Cui;
 using Oxide.Core.Libraries.Covalence;
-//using Oxide.Game.Rust.Libraries.Covalence;
 
 namespace Oxide.Plugins
 {
@@ -142,7 +132,7 @@ namespace Oxide.Plugins
 
         private IPlayer BasePlayerToIPlayer(BasePlayer player)
         {
-            return covalence.Players.GetPlayer(player.UserIDString);
+            return covalence.Players.FindPlayerById(player.UserIDString);
         }
 
         private void SendPlayerConnectNotification(BasePlayer player)
