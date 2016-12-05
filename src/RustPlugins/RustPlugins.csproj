@@ -37,26 +37,26 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>C:\rustserver\RustDedicated_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\..\..\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Facepunch.Console, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>E:\Dev\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Facepunch.Console.dll</HintPath>
+      <HintPath>..\..\..\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Facepunch.Console.dll</HintPath>
     </Reference>
     <Reference Include="Facepunch.Network, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>E:\Dev\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Facepunch.Network.dll</HintPath>
+      <HintPath>..\..\..\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Facepunch.Network.dll</HintPath>
     </Reference>
     <Reference Include="Facepunch.Steamworks">
-      <HintPath>E:\Dev\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Facepunch.Steamworks.dll</HintPath>
+      <HintPath>..\..\..\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Facepunch.Steamworks.dll</HintPath>
     </Reference>
     <Reference Include="Facepunch.System, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>E:\Dev\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Facepunch.System.dll</HintPath>
+      <HintPath>..\..\..\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Facepunch.System.dll</HintPath>
     </Reference>
     <Reference Include="Facepunch.UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>E:\Dev\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Facepunch.UnityEngine.dll</HintPath>
+      <HintPath>..\..\..\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Facepunch.UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -64,14 +64,14 @@
     </Reference>
     <Reference Include="Oxide.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>E:\Dev\Oxide\Extensions\Oxide.Core.CSharp\bin\Debug\Oxide.Core.dll</HintPath>
+      <HintPath>..\..\..\Oxide\Oxide.Core\bin\Debug\Oxide.Core.dll</HintPath>
     </Reference>
     <Reference Include="Oxide.Core.CSharp">
-      <HintPath>E:\Dev\Oxide\Extensions\Oxide.Core.CSharp\bin\Debug\Oxide.Core.CSharp.dll</HintPath>
+      <HintPath>..\..\..\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Oxide.Core.CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Oxide.Game.Rust, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>E:\Dev\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Oxide.Game.Rust.dll</HintPath>
+      <HintPath>..\..\..\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Oxide.Game.Rust.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -81,7 +81,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
-      <HintPath>C:\rustserver\RustDedicated_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>..\..\..\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -89,6 +89,9 @@
     <Compile Include="RustNotifications\RustNotifications.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RustSlackClient\RustSlackClient.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

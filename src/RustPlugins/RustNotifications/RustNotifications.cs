@@ -174,7 +174,13 @@ namespace Oxide.Plugins
                 if (info.HitEntity.OwnerID != 0)
                 {
                     string MessageText = lang.GetMessage("BaseAttackedMessageTemplate", this, player.UserIDString).Replace("{Attacker}", player.displayName).Replace("{Owner}", GetDisplayNameByID(info.HitEntity.OwnerID).Replace("{Damage}", info.damageTypes.Total().ToString()));
-                    
+
+                    //get structures percentage health remaining for check against threshold..
+                    int PercentHealthRemaining = (int)((info.HitEntity.Health() / info.HitEntity.MaxHealth()) * 100);
+
+                    //get damage
+                    int DamageInflicted = (int)(info.damageTypes.Total());
+
                     if (IsPlayerActive(info.HitEntity.OwnerID) && IsPlayerNotificationCooledDown(info.HitEntity.OwnerID, NotificationType.ServerNotification, Settings.ServerConfig.NotificationCooldownInSeconds))
                     {
                         BasePlayer p = BasePlayer.activePlayerList.Find(x => x.userID == info.HitEntity.OwnerID);
@@ -228,7 +234,9 @@ namespace Oxide.Plugins
             {
                 Active = true,
                 DoNotifyWhenBaseAttacked = true,
-                NotificationCooldownInSeconds = 60
+                NotificationCooldownInSeconds = 60,
+                ThresholdDamageInflicted = 0, //default to 0 so it sends after every hit.
+                ThresholdPercentageHealthRemaining = 100 //default to 100 so it sends after every hit
             };
         }
 
@@ -279,6 +287,8 @@ namespace Oxide.Plugins
             public bool Active { get; set; }
             public bool DoNotifyWhenBaseAttacked { get; set; }
             public int NotificationCooldownInSeconds { get; set; }
+            public int ThresholdDamageInflicted { get; set; }
+            public int ThresholdPercentageHealthRemaining { get; set; }
         }
 
         private class ClientNotificationConfig : ServerNotificationConfig
