@@ -175,7 +175,7 @@ namespace Oxide.Plugins
                 {
                     string MessageText = lang.GetMessage("BaseAttackedMessageTemplate", this, player.UserIDString).Replace("{Attacker}", player.displayName).Replace("{Owner}", GetDisplayNameByID(info.HitEntity.OwnerID).Replace("{Damage}", info.damageTypes.Total().ToString()));
 
-                    //get structures percentage health remaining for check against threshold..
+                    //get structure's percentage health remaining for check against threshold..
                     int PercentHealthRemaining = (int)((info.HitEntity.Health() / info.HitEntity.MaxHealth()) * 100);
 
                     //get damage
@@ -183,20 +183,29 @@ namespace Oxide.Plugins
 
                     if (IsPlayerActive(info.HitEntity.OwnerID) && IsPlayerNotificationCooledDown(info.HitEntity.OwnerID, NotificationType.ServerNotification, Settings.ServerConfig.NotificationCooldownInSeconds))
                     {
-                        BasePlayer p = BasePlayer.activePlayerList.Find(x => x.userID == info.HitEntity.OwnerID);
-                        PrintToChat(p, MessageText);
+                        if(PercentHealthRemaining <= Settings.ServerConfig.ThresholdPercentageHealthRemaining || DamageInflicted >= Settings.ServerConfig.ThresholdDamageInflicted)
+                        {
+                            BasePlayer p = BasePlayer.activePlayerList.Find(x => x.userID == info.HitEntity.OwnerID);
+                            PrintToChat(p, MessageText);
+                        }
                     }
                     else
                     {
                         //Slack
                         if (Settings.SlackConfig.DoNotifyWhenBaseAttacked && IsPlayerNotificationCooledDown(info.HitEntity.OwnerID, NotificationType.SlackNotification, Settings.SlackConfig.NotificationCooldownInSeconds))
                         {
-                            SendSlackNotification(player, MessageText);
+                            if (PercentHealthRemaining <= Settings.SlackConfig.ThresholdPercentageHealthRemaining || DamageInflicted >= Settings.SlackConfig.ThresholdDamageInflicted)
+                            {
+                                SendSlackNotification(player, MessageText);
+                            }
                         }
                         //Discord
                         if (Settings.DiscordConfig.DoNotifyWhenBaseAttacked && IsPlayerNotificationCooledDown(info.HitEntity.OwnerID, NotificationType.DiscordNotification, Settings.DiscordConfig.NotificationCooldownInSeconds))
                         {
-                            SendDiscordNotification(player, MessageText);
+                            if (PercentHealthRemaining <= Settings.DiscordConfig.ThresholdPercentageHealthRemaining || DamageInflicted >= Settings.DiscordConfig.ThresholdDamageInflicted)
+                            {
+                                SendDiscordNotification(player, MessageText);
+                            }
                         }
                     }
                 }
