@@ -5,7 +5,7 @@ using Oxide.Core.Libraries.Covalence;
 
 namespace Oxide.Plugins
 {
-    [Info("RustNotifications", "seanbyrne88", "0.7.1")]
+    [Info("RustNotifications", "seanbyrne88", "0.8.0")]
     [Description("Configurable Notifications for Rust Events")]
     class RustNotifications : RustPlugin
     {
@@ -54,6 +54,69 @@ namespace Oxide.Plugins
                 LoadDefaultConfig();
                 LoadDefaultMessages();
                 LoadConfigValues();
+            }
+            else
+            {
+                SendReply(player, lang.GetMessage("CommandReplyNotAdmin", this, player.UserIDString));
+            }
+        }
+
+        [ChatCommand("rustNotifyResetMessages")]
+        void CommandResetMessages(BasePlayer player, string command, string[] args)
+        {
+            if(player.IsAdmin())
+            {
+                LoadDefaultMessages();
+            }
+            else
+            {
+                SendReply(player, lang.GetMessage("CommandReplyNotAdmin", this, player.UserIDString));
+            }
+        }
+
+        //args[0] = Slack|Discord|Server|All, args[1] Value (Between 0 and 100)
+        [ChatCommand("rustNotifySetHealthThreshold")]
+        void CommandSetHealthThreshold(BasePlayer player, string command, string[] args)
+        {
+            if (player.IsAdmin())
+            {
+                if (args.Length == 2)
+                {
+                    int ThresholdPercentageHealthRemaining = int.Parse(args[1]);
+
+                    if (args[0] == "All")
+                    {
+                        Settings.ServerConfig.ThresholdPercentageHealthRemaining = ThresholdPercentageHealthRemaining;
+                        Settings.DiscordConfig.ThresholdPercentageHealthRemaining = ThresholdPercentageHealthRemaining;
+                        Settings.SlackConfig.ThresholdPercentageHealthRemaining = ThresholdPercentageHealthRemaining;
+                    }
+                    else if (args[0] == "Server")
+                    {
+                        Settings.ServerConfig.ThresholdPercentageHealthRemaining = ThresholdPercentageHealthRemaining;
+                    }
+                    else if (args[0] == "Discord")
+                    {
+                        Settings.DiscordConfig.ThresholdPercentageHealthRemaining = ThresholdPercentageHealthRemaining;
+                    }
+                    else if (args[0] == "Slack")
+                    {
+                        Settings.SlackConfig.ThresholdPercentageHealthRemaining = ThresholdPercentageHealthRemaining;
+                    }
+
+                    //save config
+                    Config.WriteObject<NotificationConfigContainer>(Settings);
+
+                    SendReply(player, lang.GetMessage("CommandReplyThresholdHealthSet", this, player.UserIDString).Replace("{Value}", ThresholdPercentageHealthRemaining.ToString()));
+
+                }
+                else
+                {
+                    SendReply(player, lang.GetMessage("CommandReplyThresholdHealthInvalidArgs", this, player.UserIDString));
+                }
+            }
+            else
+            {
+                SendReply(player, lang.GetMessage("CommandReplyNotAdmin", this, player.UserIDString));
             }
         }
 
@@ -183,7 +246,7 @@ namespace Oxide.Plugins
 
                     if (IsPlayerActive(info.HitEntity.OwnerID) && IsPlayerNotificationCooledDown(info.HitEntity.OwnerID, NotificationType.ServerNotification, Settings.ServerConfig.NotificationCooldownInSeconds))
                     {
-                        if(PercentHealthRemaining <= Settings.ServerConfig.ThresholdPercentageHealthRemaining || DamageInflicted >= Settings.ServerConfig.ThresholdDamageInflicted)
+                        if(PercentHealthRemaining <= Settings.ServerConfig.ThresholdPercentageHealthRemaining)// && DamageInflicted >= Settings.ServerConfig.ThresholdDamageInflicted)
                         {
                             BasePlayer p = BasePlayer.activePlayerList.Find(x => x.userID == info.HitEntity.OwnerID);
                             PrintToChat(p, MessageText);
@@ -194,7 +257,7 @@ namespace Oxide.Plugins
                         //Slack
                         if (Settings.SlackConfig.DoNotifyWhenBaseAttacked && IsPlayerNotificationCooledDown(info.HitEntity.OwnerID, NotificationType.SlackNotification, Settings.SlackConfig.NotificationCooldownInSeconds))
                         {
-                            if (PercentHealthRemaining <= Settings.SlackConfig.ThresholdPercentageHealthRemaining || DamageInflicted >= Settings.SlackConfig.ThresholdDamageInflicted)
+                            if (PercentHealthRemaining <= Settings.SlackConfig.ThresholdPercentageHealthRemaining)// && DamageInflicted >= Settings.SlackConfig.ThresholdDamageInflicted)
                             {
                                 SendSlackNotification(player, MessageText);
                             }
@@ -202,7 +265,7 @@ namespace Oxide.Plugins
                         //Discord
                         if (Settings.DiscordConfig.DoNotifyWhenBaseAttacked && IsPlayerNotificationCooledDown(info.HitEntity.OwnerID, NotificationType.DiscordNotification, Settings.DiscordConfig.NotificationCooldownInSeconds))
                         {
-                            if (PercentHealthRemaining <= Settings.DiscordConfig.ThresholdPercentageHealthRemaining || DamageInflicted >= Settings.DiscordConfig.ThresholdDamageInflicted)
+                            if (PercentHealthRemaining <= Settings.DiscordConfig.ThresholdPercentageHealthRemaining)// && DamageInflicted >= Settings.DiscordConfig.ThresholdDamageInflicted)
                             {
                                 SendDiscordNotification(player, MessageText);
                             }
@@ -221,6 +284,9 @@ namespace Oxide.Plugins
                     {"PlayerConnectedMessageTemplate", "{DisplayName} has joined the server"},
                     {"PlayerDisconnectedMessageTemplate", "{DisplayName} has left the server, reason: {Reason}"},
                     {"BaseAttackedMessageTemplate", "{Attacker} has attacked a structure built by {Owner}"},
+                    {"CommandReplyNotAdmin", "Must be admin to use server commands" },
+                    {"CommandReplyThresholdHealthSet", "Health Threshold has been set to {Value}" },
+                    {"CommandReplyThresholdHealthInvalidArgs", "Error, Usage: \"rustNotifyThresholdHealthSet <type:All|Server|Discord|Slack> <value:Between 0 & 100>" },
                     {"TestMessage", "Hello World"}
                 }, this);
         }
@@ -244,7 +310,7 @@ namespace Oxide.Plugins
                 Active = true,
                 DoNotifyWhenBaseAttacked = true,
                 NotificationCooldownInSeconds = 60,
-                ThresholdDamageInflicted = 0, //default to 0 so it sends after every hit.
+                //ThresholdDamageInflicted = 0, //default to 0 so it sends after every hit.
                 ThresholdPercentageHealthRemaining = 100 //default to 100 so it sends after every hit
             };
         }
@@ -286,9 +352,10 @@ namespace Oxide.Plugins
                 SlackMethodName = "SimpleMessage";
 
             DiscordMethodName = "SendMessage";
+
+            //Config.WriteObject<NotificationConfigContainer>(Settings);
         }
         #endregion
-
 
         #region classes
         private class ServerNotificationConfig
@@ -296,7 +363,7 @@ namespace Oxide.Plugins
             public bool Active { get; set; }
             public bool DoNotifyWhenBaseAttacked { get; set; }
             public int NotificationCooldownInSeconds { get; set; }
-            public int ThresholdDamageInflicted { get; set; }
+            //public int ThresholdDamageInflicted { get; set; }
             public int ThresholdPercentageHealthRemaining { get; set; }
         }
 
