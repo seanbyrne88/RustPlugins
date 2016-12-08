@@ -29,12 +29,14 @@ The default configuration file will look like this:
     "DoNotifyWhenBaseAttacked": true,
     "DoNotifyWhenPlayerConnects": true,
     "DoNotifyWhenPlayerDisconnects": true,
-    "NotificationCooldownInSeconds": 60
+    "NotificationCooldownInSeconds": 60,
+    "ThresholdPercentageHealthRemaining" : 100
   },
   "ServerConfig": {
     "Active": true,
     "DoNotifyWhenBaseAttacked": true,
-    "NotificationCooldownInSeconds": 60
+    "NotificationCooldownInSeconds": 60,
+    "ThresholdPercentageHealthRemaining" : 100
   },
   "SlackConfig": {
     "Active": false,
@@ -42,7 +44,8 @@ The default configuration file will look like this:
     "DoNotifyWhenBaseAttacked": true,
     "DoNotifyWhenPlayerConnects": true,
     "DoNotifyWhenPlayerDisconnects": true,
-    "NotificationCooldownInSeconds": 60
+    "NotificationCooldownInSeconds": 60,
+    "ThresholdPercentageHealthRemaining" : 100
   }
 }
 ```
@@ -64,6 +67,8 @@ The default configuration file will look like this:
 - PlayerDisconnectedMessageTemplate: Template message to display on player disconnections.
 
 - NotificationCooldownInSeconds: Time to wait between base attacked notifications. This is on a per player basis. Meaning if two players have their bases attacked inside the cooldown period, they will both receive messages.
+
+- ThresholdPercentageHealthRemaining: Threshold to only send notifications when the hit entity's pecentage health remaining is less than this value. Defaults to 100. E.G. If it's set to 50, only hit entities with 50% or less health remaining will trigger this alert.
 
 ServerConfig is more limited right now as there already plugins out there to notify the server when a player connects/disconnects.
 
