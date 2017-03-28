@@ -96,6 +96,10 @@
       <HintPath>E:\Dev\Oxide\Oxide.Core\bin\Debug\websocket-sharp.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="RustNotifications\lang\fr.json" />
+    <None Include="RustNotifications\lang\en.json" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
