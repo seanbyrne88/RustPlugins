@@ -36,59 +36,65 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="Facepunch.Console, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Facepunch.Console.dll</HintPath>
-    </Reference>
-    <Reference Include="Facepunch.Network, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Facepunch.Network.dll</HintPath>
-    </Reference>
-    <Reference Include="Facepunch.Steamworks">
-      <HintPath>..\..\..\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Facepunch.Steamworks.dll</HintPath>
-    </Reference>
-    <Reference Include="Facepunch.System, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Facepunch.System.dll</HintPath>
-    </Reference>
-    <Reference Include="Facepunch.UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Facepunch.UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Oxide.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Oxide\Oxide.Core\bin\Debug\Oxide.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Oxide.Core.CSharp">
-      <HintPath>..\..\..\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Oxide.Core.CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="Oxide.Game.Rust, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Oxide.Game.Rust.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="UnityEngine">
-      <HintPath>..\..\..\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\UnityEngine.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Discord\Discord.cs" />
     <Compile Include="RustNotifications\RustNotifications.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RustSlackClient\RustSlackClient.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\rustserver\RustDedicated_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Facepunch.Console, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\rustserver\RustDedicated_Data\Managed\Facepunch.Console.dll</HintPath>
+    </Reference>
+    <Reference Include="Facepunch.Rcon">
+      <HintPath>..\..\..\..\rustserver\RustDedicated_Data\Managed\Facepunch.Rcon.dll</HintPath>
+    </Reference>
+    <Reference Include="Facepunch.System, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\rustserver\RustDedicated_Data\Managed\Facepunch.System.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>E:\Dev\Oxide\Oxide.Core\bin\Debug\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Oxide.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>E:\Dev\Oxide\Oxide.Core\bin\Debug\Oxide.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Oxide.Core.CSharp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>E:\Dev\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Oxide.Core.CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Oxide.Game.Rust, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\rustserver\RustDedicated_Data\Managed\Oxide.Game.Rust.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net">
+      <HintPath>E:\Dev\Oxide\Oxide.Core\bin\Debug\protobuf-net.dll</HintPath>
+    </Reference>
+    <Reference Include="Rust.Data">
+      <HintPath>..\..\..\..\rustserver\RustDedicated_Data\Managed\Rust.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Rust.UI">
+      <HintPath>..\..\..\..\rustserver\RustDedicated_Data\Managed\Rust.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="RustBuild">
+      <HintPath>..\..\..\..\rustserver\RustDedicated_Data\Managed\RustBuild.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\rustserver\RustDedicated_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="websocket-sharp">
+      <HintPath>E:\Dev\Oxide\Oxide.Core\bin\Debug\websocket-sharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

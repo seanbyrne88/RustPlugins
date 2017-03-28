@@ -49,7 +49,7 @@ namespace Oxide.Plugins
         [ChatCommand("rustNotifyResetConfig")]
         void CommandResetConfig(BasePlayer player, string command, string[] args)
         {
-            if (player.IsAdmin())
+            if (player.IsAdmin)
             {
                 LoadDefaultConfig();
                 LoadDefaultMessages();
@@ -64,7 +64,7 @@ namespace Oxide.Plugins
         [ChatCommand("rustNotifyResetMessages")]
         void CommandResetMessages(BasePlayer player, string command, string[] args)
         {
-            if(player.IsAdmin())
+            if(player.IsAdmin)
             {
                 LoadDefaultMessages();
             }
@@ -78,7 +78,7 @@ namespace Oxide.Plugins
         [ChatCommand("rustNotifySetHealthThreshold")]
         void CommandSetHealthThreshold(BasePlayer player, string command, string[] args)
         {
-            if (player.IsAdmin())
+            if (player.IsAdmin)
             {
                 if (args.Length == 2)
                 {
@@ -241,6 +241,7 @@ namespace Oxide.Plugins
                                                             .Replace("{Weapon}", info.Weapon.ShortPrefabName.Replace(".entity", ""))
                                                             .Replace("{Damage}", info.damageTypes.Total().ToString());
 
+
                     //get structure's percentage health remaining for check against threshold..
                     int PercentHealthRemaining = (int)((info.HitEntity.Health() / info.HitEntity.MaxHealth()) * 100);
 
@@ -255,23 +256,21 @@ namespace Oxide.Plugins
                             PrintToChat(p, MessageText);
                         }
                     }
-                    else
+                    //Slack
+                    if (Settings.SlackConfig.DoNotifyWhenBaseAttacked && IsPlayerNotificationCooledDown(info.HitEntity.OwnerID, NotificationType.SlackNotification, Settings.SlackConfig.NotificationCooldownInSeconds))
                     {
-                        //Slack
-                        if (Settings.SlackConfig.DoNotifyWhenBaseAttacked && IsPlayerNotificationCooledDown(info.HitEntity.OwnerID, NotificationType.SlackNotification, Settings.SlackConfig.NotificationCooldownInSeconds))
+                        //PrintWarning(PercentHealthRemaining.ToString());
+                        if (PercentHealthRemaining <= Settings.SlackConfig.ThresholdPercentageHealthRemaining)// && DamageInflicted >= Settings.SlackConfig.ThresholdDamageInflicted)
                         {
-                            if (PercentHealthRemaining <= Settings.SlackConfig.ThresholdPercentageHealthRemaining)// && DamageInflicted >= Settings.SlackConfig.ThresholdDamageInflicted)
-                            {
-                                SendSlackNotification(player, MessageText);
-                            }
+                            SendSlackNotification(player, MessageText);
                         }
-                        //Discord
-                        if (Settings.DiscordConfig.DoNotifyWhenBaseAttacked && IsPlayerNotificationCooledDown(info.HitEntity.OwnerID, NotificationType.DiscordNotification, Settings.DiscordConfig.NotificationCooldownInSeconds))
+                    }
+                    //Discord
+                    if (Settings.DiscordConfig.DoNotifyWhenBaseAttacked && IsPlayerNotificationCooledDown(info.HitEntity.OwnerID, NotificationType.DiscordNotification, Settings.DiscordConfig.NotificationCooldownInSeconds))
+                    {
+                        if (PercentHealthRemaining <= Settings.DiscordConfig.ThresholdPercentageHealthRemaining)// && DamageInflicted >= Settings.DiscordConfig.ThresholdDamageInflicted)
                         {
-                            if (PercentHealthRemaining <= Settings.DiscordConfig.ThresholdPercentageHealthRemaining)// && DamageInflicted >= Settings.DiscordConfig.ThresholdDamageInflicted)
-                            {
-                                SendDiscordNotification(player, MessageText);
-                            }
+                            SendDiscordNotification(player, MessageText);
                         }
                     }
                 }
