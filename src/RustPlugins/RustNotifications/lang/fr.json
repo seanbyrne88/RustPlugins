@@ -2,9 +2,9 @@
 {
   "PlayerConnectedMessageTemplate": "{DisplayName} a rejoint le serveur",
   "PlayerDisconnectedMessageTemplate": "{DisplayName} est partis du serveur, raison : {Reason}",
-  "BaseAttackedMessageTemplate": "{Attacker} attaque une structure construite par {Owner}",
+  "BaseAttackedMessageTemplate": "{Attacker} attaque la structure de {Owner}",
   "CommandReplyNotAdmin": "Vous devez Ãªtre admin pour utiliser les commandes du serveur",
   "CommandReplyThresholdHealthSet": "Le Seuil de santÃ© a Ã©tÃ© dÃ©fini Ã  {Value}",
-  "CommandReplyThresholdHealthInvalidArgs": "Erreur ! Utilisation : \"rustNotifyThresholdHealthSet <type:All|Server|Discord|Slack> <valeur:comprise entre 0 et 100>",
-  "TestMessage": "Hello everybody"
+  "CommandReplyThresholdHealthInvalidArgs": "Erreur ! Utilisation : \"rustNotifyThresholdHealthSet <type:All|Serveur|Discord|Slack> <valeur:comprise entre 0 et 100>",
+  "TestMessage": "Bonjour tout le monde"
 }
