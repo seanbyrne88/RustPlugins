@@ -5,7 +5,7 @@ using Oxide.Core.Libraries.Covalence;
 
 namespace Oxide.Plugins
 {
-    [Info("RustNotifications", "seanbyrne88", "0.8.4")]
+    [Info("RustNotifications", "seanbyrne88", "0.9.0")]
     [Description("Configurable Notifications for Rust Events")]
     class RustNotifications : RustPlugin
     {
@@ -39,10 +39,54 @@ namespace Oxide.Plugins
             SendPlayerDisconnectNotification(player, reason);
         }
 
-        void OnPlayerAttack(BasePlayer attacker, HitInfo info)
+        void OnEntityTakeDamage(BaseCombatEntity entity, HitInfo info)
         {
-            SendBaseAttackedNotification(attacker, info);
+            if (info== null || info.Initiator == null || info.WeaponPrefab == null || info.InitiatorPlayer == null)
+            {
+                return;
+            }
+            else
+            {
+                BasePlayer player = info.InitiatorPlayer;
+                ulong hitEntityOwnerID = entity.OwnerID;
+                     
+                string MessageText = lang.GetMessage("BaseAttackedMessageTemplate", this, player.UserIDString)
+                                                            .Replace("{Attacker}", player.displayName)
+                                                            .Replace("{Owner}", GetDisplayNameByID(hitEntityOwnerID))
+                                                            .Replace("{Weapon}", info.WeaponPrefab.ShortPrefabName.Replace(".entity", ""))
+                                                            .Replace("{Damage}", info.damageTypes.Total().ToString());
+
+                //get structure's percentage health remaining for check against threshold
+                int PercentHealthRemaining = (int)((entity.Health() / entity.MaxHealth()) * 100);
+
+                if (IsPlayerActive(hitEntityOwnerID) && IsPlayerNotificationCooledDown(hitEntityOwnerID, NotificationType.ServerNotification, Settings.ServerConfig.NotificationCooldownInSeconds))
+                {
+                    if (PercentHealthRemaining <= Settings.ServerConfig.ThresholdPercentageHealthRemaining)
+                    {
+                        BasePlayer p = BasePlayer.activePlayerList.Find(x => x.userID == hitEntityOwnerID);
+                        PrintToChat(p, MessageText);
+                    }
+                }
+                //Slack
+                if (Settings.SlackConfig.DoNotifyWhenBaseAttacked && IsPlayerNotificationCooledDown(hitEntityOwnerID, NotificationType.SlackNotification, Settings.SlackConfig.NotificationCooldownInSeconds))
+                {
+                    if (PercentHealthRemaining <= Settings.SlackConfig.ThresholdPercentageHealthRemaining)
+                    {
+                        SendSlackNotification(player, MessageText);
+                    }
+                }
+                //Discord
+                if (Settings.DiscordConfig.DoNotifyWhenBaseAttacked && IsPlayerNotificationCooledDown(hitEntityOwnerID, NotificationType.DiscordNotification, Settings.DiscordConfig.NotificationCooldownInSeconds))
+                {
+                    if (PercentHealthRemaining <= Settings.DiscordConfig.ThresholdPercentageHealthRemaining)
+                    {
+                        SendDiscordNotification(player, MessageText);
+                    }
+                }
+
+            }
         }
+
         #endregion
 
         #region chat commands
@@ -124,6 +168,16 @@ namespace Oxide.Plugins
 
         #region private methods
 
+        private string BuildConnectMessage(string PlayerUserIDString, string PlayerDisplayName)
+        {
+            return lang.GetMessage("PlayerConnectedMessageTemplate", this, PlayerUserIDString).Replace("{DisplayName}", PlayerDisplayName);
+        }
+
+        private string BuildDisconnectMessage(string PlayerUserIDString, string PlayerDisplayName, string Reason)
+        {
+            return lang.GetMessage("PlayerDisconnectedMessageTemplate", this, PlayerUserIDString).Replace("{DisplayName}", PlayerDisplayName).Replace("{Reason}", Reason);
+        }
+
         private string GetDisplayNameByID(ulong UserID)
         {
             IPlayer player = this.covalence.Players.FindPlayer(UserID.ToString());
@@ -199,81 +253,31 @@ namespace Oxide.Plugins
 
         private void SendPlayerConnectNotification(BasePlayer player)
         {
+            string MessageText = BuildConnectMessage(player.UserIDString, player.displayName);
+
             if (Settings.SlackConfig.DoNotifyWhenPlayerConnects)
             {
-                //string MessageText = Lang("PlayerConnectedMessageTemplate", player.UserIDString).Replace("{DisplayName}", player.displayName);
-                string MessageText = lang.GetMessage("PlayerConnectedMessageTemplate", this, player.UserIDString).Replace("{DisplayName}", player.displayName);
                 SendSlackNotification(player, MessageText);
             }
 
             if (Settings.DiscordConfig.DoNotifyWhenPlayerConnects)
             {
-                string MessageText = lang.GetMessage("PlayerConnectedMessageTemplate", this, player.UserIDString).Replace("{DisplayName}", player.displayName);
                 SendDiscordNotification(player, MessageText);
             }
         }
 
         private void SendPlayerDisconnectNotification(BasePlayer player, string reason)
         {
+            string MessageText = BuildDisconnectMessage(player.UserIDString, player.displayName, reason);
+
             if (Settings.SlackConfig.DoNotifyWhenPlayerDisconnects)
             {
-                string MessageText = lang.GetMessage("PlayerDisconnectedMessageTemplate", this, player.UserIDString).Replace("{DisplayName}", player.displayName).Replace("{Reason}", reason);
                 SendSlackNotification(player, MessageText);
             }
 
             if (Settings.DiscordConfig.DoNotifyWhenPlayerDisconnects)
             {
-                string MessageText = lang.GetMessage("PlayerDisconnectedMessageTemplate", this, player.UserIDString).Replace("{DisplayName}", player.displayName).Replace("{Reason}", reason);
                 SendDiscordNotification(player, MessageText);
-            }
-        }
-
-        private void SendBaseAttackedNotification(BasePlayer player, HitInfo info)
-        {
-            if (info.HitEntity != null)
-            {
-                //First check if the HitEntity is owned by a player.
-                if (info.HitEntity.OwnerID != 0)
-                {
-                    string MessageText = lang.GetMessage("BaseAttackedMessageTemplate", this, player.UserIDString)
-                                                            .Replace("{Attacker}", player.displayName)
-                                                            .Replace("{Owner}", GetDisplayNameByID(info.HitEntity.OwnerID))
-                                                            .Replace("{Weapon}", info.Weapon.ShortPrefabName.Replace(".entity", ""))
-                                                            .Replace("{Damage}", info.damageTypes.Total().ToString());
-
-
-                    //get structure's percentage health remaining for check against threshold..
-                    int PercentHealthRemaining = (int)((info.HitEntity.Health() / info.HitEntity.MaxHealth()) * 100);
-
-                    //get damage
-                    int DamageInflicted = (int)(info.damageTypes.Total());
-
-                    if (IsPlayerActive(info.HitEntity.OwnerID) && IsPlayerNotificationCooledDown(info.HitEntity.OwnerID, NotificationType.ServerNotification, Settings.ServerConfig.NotificationCooldownInSeconds))
-                    {
-                        if(PercentHealthRemaining <= Settings.ServerConfig.ThresholdPercentageHealthRemaining)// && DamageInflicted >= Settings.ServerConfig.ThresholdDamageInflicted)
-                        {
-                            BasePlayer p = BasePlayer.activePlayerList.Find(x => x.userID == info.HitEntity.OwnerID);
-                            PrintToChat(p, MessageText);
-                        }
-                    }
-                    //Slack
-                    if (Settings.SlackConfig.DoNotifyWhenBaseAttacked && IsPlayerNotificationCooledDown(info.HitEntity.OwnerID, NotificationType.SlackNotification, Settings.SlackConfig.NotificationCooldownInSeconds))
-                    {
-                        //PrintWarning(PercentHealthRemaining.ToString());
-                        if (PercentHealthRemaining <= Settings.SlackConfig.ThresholdPercentageHealthRemaining)// && DamageInflicted >= Settings.SlackConfig.ThresholdDamageInflicted)
-                        {
-                            SendSlackNotification(player, MessageText);
-                        }
-                    }
-                    //Discord
-                    if (Settings.DiscordConfig.DoNotifyWhenBaseAttacked && IsPlayerNotificationCooledDown(info.HitEntity.OwnerID, NotificationType.DiscordNotification, Settings.DiscordConfig.NotificationCooldownInSeconds))
-                    {
-                        if (PercentHealthRemaining <= Settings.DiscordConfig.ThresholdPercentageHealthRemaining)// && DamageInflicted >= Settings.DiscordConfig.ThresholdDamageInflicted)
-                        {
-                            SendDiscordNotification(player, MessageText);
-                        }
-                    }
-                }
             }
         }
         #endregion notifications
