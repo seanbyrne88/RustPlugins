@@ -79,6 +79,9 @@
     <Reference Include="Rust.Data">
       <HintPath>..\..\..\..\rustserver\RustDedicated_Data\Managed\Rust.Data.dll</HintPath>
     </Reference>
+    <Reference Include="Rust.Global">
+      <HintPath>E:\Dev\Oxide\Games\Unity\Oxide.Game.Rust\bin\Debug\Rust.Global.dll</HintPath>
+    </Reference>
     <Reference Include="Rust.UI">
       <HintPath>..\..\..\..\rustserver\RustDedicated_Data\Managed\Rust.UI.dll</HintPath>
     </Reference>
