@@ -60,6 +60,7 @@ namespace Oxide.Plugins
                                                             .Replace("{Attacker}", player.displayName)
                                                             .Replace("{Owner}", GetDisplayNameByID(hitEntityOwnerID))
                                                             .Replace("{Weapon}", info.WeaponPrefab.ShortPrefabName.Replace(".entity", ""))
+                                                            .Replace("{Position}", String.Format("X: {0}, Y: {1}, Z:{2}", Math.Round(entity.transform.position.x, 2), Math.Round(entity.transform.position.y, 2), Math.Round(entity.transform.position.z, 2)))
                                                             .Replace("{Structure}", entity.ShortPrefabName.Replace(".entity", ""))
                                                             .Replace("{Damage}", Math.Round(info.damageTypes.Total(), 2).ToString());
 
