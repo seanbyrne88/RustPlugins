@@ -48,19 +48,20 @@ namespace Oxide.Plugins
             else
             {
                 BasePlayer player = info.InitiatorPlayer;
-                ulong hitEntityOwnerID = entity.OwnerID;
+
+                ulong hitEntityOwnerID = entity.OwnerID != 0 ? entity.OwnerID: info.HitEntity.OwnerID;
 
                 if (hitEntityOwnerID == 0)
                 {
                     return;
                 }
-                     
+
                 string MessageText = lang.GetMessage("BaseAttackedMessageTemplate", this, player.UserIDString)
                                                             .Replace("{Attacker}", player.displayName)
                                                             .Replace("{Owner}", GetDisplayNameByID(hitEntityOwnerID))
                                                             .Replace("{Weapon}", info.WeaponPrefab.ShortPrefabName.Replace(".entity", ""))
                                                             .Replace("{Structure}", entity.ShortPrefabName.Replace(".entity", ""))
-                                                            .Replace("{Damage}", info.damageTypes.Total().ToString());
+                                                            .Replace("{Damage}", Math.Round(info.damageTypes.Total(), 2).ToString());
 
                 //get structure's percentage health remaining for check against threshold
                 int PercentHealthRemaining = (int)((entity.Health() / entity.MaxHealth()) * 100);
