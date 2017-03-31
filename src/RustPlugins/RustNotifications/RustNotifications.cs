@@ -5,7 +5,7 @@ using Oxide.Core.Libraries.Covalence;
 
 namespace Oxide.Plugins
 {
-    [Info("RustNotifications", "seanbyrne88", "0.9.0")]
+    [Info("RustNotifications", "seanbyrne88", "0.9.1")]
     [Description("Configurable Notifications for Rust Events")]
     class RustNotifications : RustPlugin
     {
