@@ -1,0 +1,9 @@
+﻿{
+  "PlayerConnectedMessageTemplate": "{DisplayName} присоединился к серверу",
+  "PlayerDisconnectedMessageTemplate": "{DisplayName} покинул сервер, причина: {Reason}",
+  "BaseAttackedMessageTemplate": "{Attacker} атаковал постройку игрока {Owner}, используя {Weapon}",
+  "TestMessage": "Привет, мир",
+  "CommandReplyNotAdmin": "Чтобы использовать эти команды, вы должны быть администратором",
+  "CommandReplyThresholdHealthSet": "Порог здоровья построек был установлен в {Value}",
+  "CommandReplyThresholdHealthInvalidArgs": "Ошибка, Использование: \"rustNotifyThresholdHealthSet <тип:All|Server|Discord|Slack> <значение:между 0 и 100>"
+}
